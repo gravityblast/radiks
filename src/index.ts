@@ -5,6 +5,7 @@ import { configure, getConfig } from './config';
 import GroupMembership from './models/group-membership';
 import GroupInvitation from './models/group-invitation';
 import Central from './central';
+import { userGroupKeys } from './helpers';
 
 export {
   Model,
@@ -15,4 +16,5 @@ export {
   User,
   GroupInvitation,
   Central,
+  userGroupKeys,
 };

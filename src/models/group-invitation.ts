@@ -41,9 +41,9 @@ export default class GroupInvitation extends Model {
   async activate() {
     const { userGroups } = userGroupKeys();
     const groupId: string = this.attrs.userGroupId as string;
-    if (userGroups[groupId]) {
-      return true;
-    }
+    // if (userGroups[groupId]) {
+    //   return true;
+    // }
     const groupMembership = new GroupMembership({
       userGroupId: this.attrs.userGroupId,
       username: loadUserData().username,

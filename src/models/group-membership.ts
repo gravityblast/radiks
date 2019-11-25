@@ -28,6 +28,10 @@ export default class GroupMembership extends Model {
     signingKeyId: String,
   }
 
+  static defaults = {
+    updatable: false,
+  }
+
   static async fetchUserGroups(): Promise<UserGroupKeys> {
     const { username } = loadUserData();
     const memberships: GroupMembership[] = await GroupMembership.fetchList({

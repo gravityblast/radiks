@@ -83,6 +83,5 @@ export const destroyModel = async (model: Model) => {
     method: 'DELETE',
   });
   const data = await response.json();
-  console.log(data);
   return data.success;
 };

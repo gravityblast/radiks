@@ -6,6 +6,7 @@ import GroupMembership from './models/group-membership';
 import GroupInvitation from './models/group-invitation';
 import Central from './central';
 import { userGroupKeys } from './helpers';
+import { destroyModel } from './api';
 
 export {
   Model,
@@ -17,4 +18,5 @@ export {
   GroupInvitation,
   Central,
   userGroupKeys,
+  destroyModel,
 };

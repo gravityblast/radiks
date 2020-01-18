@@ -286,7 +286,7 @@ export default class Model {
     }
   };
 
-  static addStreamListener(callback: () => void) {
+  static addStreamListener(callback: (model: Model) => void) {
     if (!this.emitter) {
       this.emitter = new EventEmitter();
     }

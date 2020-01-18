@@ -20,7 +20,7 @@ export default class GroupMembership extends Model {
   static className = 'GroupMembership';
   static schema = {
     userGroupId: String,
-    username: {
+    identityAddress: {
       type: String,
       decrypted: true,
     },
@@ -33,9 +33,9 @@ export default class GroupMembership extends Model {
   }
 
   static async fetchUserGroups(): Promise<UserGroupKeys> {
-    const { username } = loadUserData();
+    const { identityAddress } = loadUserData();
     const memberships: GroupMembership[] = await GroupMembership.fetchList({
-      username,
+      identityAddress,
     });
     const signingKeys: UserGroupKeys['signingKeys'] = {};
     memberships.forEach(({ attrs }) => {
@@ -53,7 +53,7 @@ export default class GroupMembership extends Model {
   static async cacheKeys() {
     const { userGroups, signingKeys } = await this.fetchUserGroups();
     const groupKeys = userGroupKeys();
-    const self = await User.findById(loadUserData().username);
+    const self = await User.findById(loadUserData().identityAddress);
     const key = await SigningKey.findById(self.attrs.personalSigningKeyId);
     groupKeys.personal = key.attrs;
     groupKeys.signingKeys = signingKeys;
@@ -70,7 +70,7 @@ export default class GroupMembership extends Model {
   }
 
   async encryptionPublicKey() {
-    const user = await User.findById(this.attrs.username, { decrypt: false });
+    const user = await User.findById(this.attrs.identityAddress, { decrypt: false });
     const { publicKey } = user.attrs;
     return publicKey;
   }

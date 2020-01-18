@@ -10,7 +10,7 @@ import {
 import { Schema, Attrs } from '../types/index';
 
 interface Member {
-  username: string,
+  identityAddress: string,
   inviteId: string
 }
 
@@ -56,16 +56,16 @@ export default class UserGroup extends Model {
     this.privateKey = signingKey.attrs.privateKey;
     addUserGroupKey(this);
     // await this.makeGaiaConfig();
-    const { username } = loadUserData();
-    const invitation = await this.makeGroupMembership(username);
+    const { identityAddress } = loadUserData();
+    const invitation = await this.makeGroupMembership(identityAddress);
     await invitation.activate();
     return this;
   }
 
-  async makeGroupMembership(username: string): Promise<GroupInvitation> {
+  async makeGroupMembership(identityAddress: string): Promise<GroupInvitation> {
     let existingInviteId = null;
     this.attrs.members.forEach((member: Member) => {
-      if (member.username === username) {
+      if (member.identityAddress === identityAddress) {
         existingInviteId = member.inviteId;
       }
     });
@@ -76,11 +76,11 @@ export default class UserGroup extends Model {
       );
       return invitation as GroupInvitation;
     }
-    const invitation = await GroupInvitation.makeInvitation(username, this);
+    const invitation = await GroupInvitation.makeInvitation(identityAddress, this);
 
     this.attrs.members = [
       ...this.attrs.members,
-      { username, inviteId: invitation._id },
+      { identityAddress, inviteId: invitation._id },
     ];
 
     await this.save();

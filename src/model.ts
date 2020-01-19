@@ -30,6 +30,7 @@ export default class Model {
   public static defaults: any = {};
   public static className?: string;
   public static emitter?: EventEmitter;
+  private static onStreamEventBinded: (events: any[]) => void | undefined
   schema: Schema;
   _id: string;
   attrs: Attrs;
@@ -267,22 +268,26 @@ export default class Model {
     return false;
   }
 
-  static onStreamEvent = (_this, [event]) => {
+  static onStreamEvent([event]: any[]) {
+    if (event.data === "ping") {
+      return;
+    }
+
     try {
       const { data } = event;
       const attrs = JSON.parse(data);
-      if (attrs && attrs.radiksType === _this.modelName()) {
-        const model = new _this(attrs);
+      if (attrs && attrs.radiksType === this.modelName()) {
+        const model: any = new this(attrs);
         if (model.isOwnedByUser()) {
           model.decrypt().then(() => {
-            _this.emitter.emit(EVENT_NAME, model);
+            this.emitter.emit(EVENT_NAME, model);
           });
         } else {
-          _this.emitter.emit(EVENT_NAME, model);
+          this.emitter.emit(EVENT_NAME, model);
         }
       }
     } catch (error) {
-      // console.error(error.message);
+      console.error(error.message);
     }
   };
 
@@ -290,19 +295,25 @@ export default class Model {
     if (!this.emitter) {
       this.emitter = new EventEmitter();
     }
+
+    if (this.onStreamEventBinded === undefined) {
+      this.onStreamEventBinded = this.onStreamEvent.bind(this);
+    }
+
     if (this.emitter.getListeners().length === 0) {
-      Streamer.addListener((args: any) => {
-        this.onStreamEvent(this, args);
-      });
+      Streamer.addListener(this.onStreamEventBinded);
     }
     this.emitter.addListener(EVENT_NAME, callback);
   }
 
-  static removeStreamListener(callback: () => void) {
+  static removeStreamListener(callback: (model: Model) => void) {
     this.emitter.removeListener(EVENT_NAME, callback);
-    if (this.emitter.getListeners().length === 0) {
+    // if (this.emitter.getListeners().length === 0) {
+    if (this.onStreamEventBinded !== undefined) {
       Streamer.removeListener(this.onStreamEvent);
     }
+
+    // }
   }
 
   async destroy(): Promise<boolean> {
